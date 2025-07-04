@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskMony</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#54ffb5",
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="font-sans bg-yellow-50 text-gray-800 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-200"
+  >
+    <div class="flex flex-col min-h-screen">
+      <!-- Header -->
+      <header
+        class="bg-yellow-50 dark:bg-gray-800 shadow-sm py-4 px-6 sticky top-0 z-30"
+      >
+        <div class="container mx-auto flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <button
+              id="sidebar-toggle"
+              class="sidebar-toggle lg:hidden w-10 h-10 flex items-center justify-center text-gray-600 dark:text-gray-300"
+            >
+              <i class="ri-menu-line ri-lg"></i>
+            </button>
+            <h1 class="text-2xl font-['Pacifico'] text-primary">TaskMony</h1>
+          </div>
+          <div class="relative mx-4 flex-1 max-w-md hidden md:block">
+            <div class="relative">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Görev ara..."
+                class="w-full pl-10 pr-4 py-2 rounded-button bg-gray-100 dark:bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              />
+              <div
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-500 dark:text-gray-400"
+              >
+                <i class="ri-search-line"></i>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="hidden sm:inline text-sm">Tema</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="theme-toggle"
+                  aria-label="Tema değiştir (açık/koyu)"
+                />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="relative">
+              <button
+                id="color-picker-btn"
+                class="w-8 h-8 rounded-full border-2 border-white dark:border-gray-700 shadow-sm"
+                style="background-color: var(--primary-color, #ff7d54)"
+              ></button>
+              <div
+                id="color-picker"
+                class="absolute right-0 top-full mt-2 p-3 bg-white dark:bg-gray-800 rounded shadow-lg z-50 hidden"
+              >
+                <input
+                  type="color"
+                  id="custom-color-picker"
+                  class="w-full h-10 rounded cursor-pointer"
+                  value="#FF7D54"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col lg:flex-row">
+        <!-- Sidebar -->
+        <aside
+          id="sidebar"
+          class="sidebar bg-yellow-50 dark:bg-gray-800 w-full lg:w-72 p-6 shadow-sm lg:sticky lg:top-[73px] lg:h-[calc(100vh-73px)] overflow-y-auto"
+        >
+          <div class="relative md:hidden mb-4">
+            <input
+              type="text"
+              placeholder="Görev ara..."
+              class="w-full pl-10 pr-4 py-2 rounded-button bg-gray-100 dark:bg-gray-700 border-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+            />
+            <div
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-500 dark:text-gray-400"
+            >
+              <i class="ri-search-line"></i>
+            </div>
+          </div>
+          <div class="flex flex-col gap-8">
+            <div>
+              <h2
+                class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100"
+              >
+                Kategoriler
+              </h2>
+              <nav aria-label="Kategori menüsü">
+                <ul class="space-y-2" id="category-list"></ul>
+              </nav>
+            </div>
+            <div>
+              <button
+                id="add-category-btn"
+                class="flex items-center gap-2 text-primary hover:text-primary/80 font-medium"
+              >
+                <i class="ri-add-line"></i> Yeni Kategori Ekle
+              </button>
+            </div>
+            <div>
+              <h2
+                class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100"
+              >
+                Filtreler
+              </h2>
+              <ul class="space-y-2">
+                <li
+                  class="filter-item rounded-button p-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-filter="all"
+                >
+                  <i
+                    class="ri-list-check w-5 h-5 flex items-center justify-center text-gray-600 dark:text-gray-400"
+                  ></i>
+                  <span>Tüm Görevler</span>
+                  <span
+                    class="ml-auto text-xs text-gray-500 dark:text-gray-400 filter-count"
+                    >7</span
+                  >
+                </li>
+                <li
+                  class="filter-item rounded-button p-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-filter="active"
+                >
+                  <i
+                    class="ri-time-line w-5 h-5 flex items-center justify-center text-yellow-500"
+                  ></i>
+                  <span>Aktif</span>
+                  <span
+                    class="ml-auto text-xs text-gray-500 dark:text-gray-400 filter-count"
+                    >5</span
+                  >
+                </li>
+                <li
+                  class="filter-item rounded-button p-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-filter="completed"
+                >
+                  <i
+                    class="ri-check-double-line w-5 h-5 flex items-center justify-center text-green-500"
+                  ></i>
+                  <span>Tamamlanan</span>
+                  <span
+                    class="ml-auto text-xs text-gray-500 dark:text-gray-400 filter-count"
+                    >2</span
+                  >
+                </li>
+                <li
+                  class="filter-item rounded-button p-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-filter="high"
+                >
+                  <i
+                    class="ri-arrow-up-line w-5 h-5 flex items-center justify-center text-red-500"
+                  ></i>
+                  <span>Yüksek Öncelikli</span>
+                  <span
+                    class="ml-auto text-xs text-gray-500 dark:text-gray-400 filter-count"
+                    >2</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+        <!-- Task Content -->
+        <section class="flex-1 p-4 lg:p-6 container mx-auto">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
+          >
+            <div>
+              <h1 class="text-2xl font-bold" id="current-view-title">
+                Tüm Görevler
+              </h1>
+              <p class="text-gray-500 dark:text-gray-400" id="task-count">
+                7 görev
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <div class="relative">
+                <button
+                  id="sort-button"
+                  class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-button flex items-center gap-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap"
+                >
+                  <i
+                    class="ri-sort-asc w-5 h-5 flex items-center justify-center"
+                  ></i>
+                  <span>Sırala</span>
+                  <i class="ri-arrow-down-s-line"></i>
+                </button>
+                <div
+                  id="sort-dropdown"
+                  class="hidden absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10 w-48"
+                >
+                  <ul class="py-1">
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                      data-sort="date-asc"
+                    >
+                      Tarih (Yeniden Eskiye)
+                    </li>
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                      data-sort="date-desc"
+                    >
+                      Tarih (Eskiden Yeniye)
+                    </li>
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                      data-sort="priority-desc"
+                    >
+                      Öncelik (Yüksekten Düşüğe)
+                    </li>
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm"
+                      data-sort="priority-asc"
+                    >
+                      Öncelik (Düşükten Yükseğe)
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <button
+                id="add-task-btn"
+                class="px-4 py-2 bg-primary text-white rounded-button flex items-center gap-2 hover:bg-primary/90 whitespace-nowrap !rounded-button"
+              >
+                <i class="ri-add-line"></i>
+                <span>Yeni Görev</span>
+              </button>
+            </div>
+          </div>
+          <!-- Tasks Grid -->
+          <div
+            id="tasks-container"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          ></div>
+        </section>
+      </main>
+    </div>
+    <!-- Add Task Modal -->
+    <div
+      id="add-task-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700"
+        >
+          <h2 class="text-xl font-semibold" id="modal-title">
+            Yeni Görev Ekle
+          </h2>
+          <button
+            id="close-modal-btn"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 w-8 h-8 flex items-center justify-center"
+          >
+            <i class="ri-close-line ri-lg"></i>
+          </button>
+        </div>
+        <form id="task-form" class="p-4">
+          <input type="hidden" id="task-id" />
+          <div class="mb-4">
+            <label
+              for="task-title"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Başlık</label
+            >
+            <input
+              type="text"
+              id="task-title"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              placeholder="Görev başlığı"
+              required
+              aria-describedby="task-title-desc"
+            />
+            <p
+              id="task-title-desc"
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"
+            >
+              Görev başlığını buraya girin.
+            </p>
+          </div>
+          <div class="mb-4">
+            <label
+              for="task-description"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Açıklama</label
+            >
+            <textarea
+              id="task-description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              placeholder="Görev açıklaması"
+              aria-describedby="task-description-desc"
+              required
+            ></textarea>
+            <p
+              id="task-description-desc"
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden"
+            >
+              Görev açıklamasını buraya girin.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="mb-4">
+              <label
+                for="task-category"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >Kategori</label
+              >
+              <div class="relative">
+                <select
+                  id="task-category"
+                  class="w-full appearance-none px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  aria-describedby="task-category-desc"
+                  required
+                >
+                  <option value="kisisel" data-color="#FF7D54">Kişisel</option>
+                  <option value="is" data-color="#4F46E5">İş</option>
+                  <option value="alisveris" data-color="#10B981">
+                    Alışveriş
+                  </option>
+                  <option value="saglik" data-color="#8B5CF6">Sağlık</option>
+                </select>
+                <p
+                  id="task-category-desc"
+                  class="text-xs text-red-500 dark:text-red-400 mt-1 hidden"
+                >
+                  Lütfen bir kategori seçin.
+                </p>
+                <div
+                  class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+                >
+                  <i
+                    class="ri-arrow-down-s-line text-gray-500 dark:text-gray-400"
+                  ></i>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label
+                for="task-priority"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >Öncelik</label
+              >
+              <div class="relative">
+                <select
+                  id="task-priority"
+                  class="w-full appearance-none px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  <option value="high">Yüksek</option>
+                  <option value="medium" selected>Orta</option>
+                  <option value="low">Düşük</option>
+                </select>
+                <div
+                  class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+                >
+                  <i
+                    class="ri-arrow-down-s-line text-gray-500 dark:text-gray-400"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label
+              for="task-date"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Tarih</label
+            >
+            <input
+              type="date"
+              id="task-date"
+              min="${new Date().toISOString().split('T')[0]}"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              required
+              aria-describedby="task-date-desc"
+            />
+            <p
+              id="task-date-desc"
+              class="text-xs text-red-500 dark:text-red-400 mt-1 hidden"
+            >
+              Lütfen bir tarih seçin.
+            </p>
+          </div>
+          <div class="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              id="cancel-task-btn"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-button hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap !rounded-button"
+            >
+              İptal
+            </button>
+            <button
+              type="submit"
+              id="save-task-btn"
+              class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90 whitespace-nowrap !rounded-button"
+            >
+              Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Add Category Modal -->
+    <div
+      id="add-category-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden"
+      >
+        <div
+          class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700"
+        >
+          <h2 class="text-xl font-semibold">Yeni Kategori Ekle</h2>
+          <button
+            id="close-category-modal-btn"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 w-8 h-8 flex items-center justify-center"
+          >
+            <i class="ri-close-line ri-lg"></i>
+          </button>
+        </div>
+        <form id="category-form" class="p-4">
+          <div class="mb-4">
+            <label
+              for="category-name"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Kategori Adı</label
+            >
+            <input
+              type="text"
+              id="category-name"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-button bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              placeholder="Kategori adı"
+              required
+              aria-describedby="category-name-desc"
+            />
+            <p
+              id="category-name-desc"
+              class="text-xs text-red-500 dark:text-red-400 mt-1 hidden"
+            >
+              Bu isimde bir kategori zaten mevcut.
+            </p>
+          </div>
+          <div class="mb-4">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Renk Seç</label
+            >
+            <div class="grid grid-cols-5 gap-3" id="category-colors">
+              <div
+                class="color-option selected"
+                style="background-color: #ff7d54"
+                data-color="#FF7D54"
+                aria-label="Renk: Turuncu (#FF7D54)"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #4f46e5"
+                data-color="#4F46E5"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #10b981"
+                data-color="#10B981"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #f59e0b"
+                data-color="#F59E0B"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #ec4899"
+                data-color="#EC4899"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #8b5cf6"
+                data-color="#8B5CF6"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #06b6d4"
+                data-color="#06B6D4"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #ef4444"
+                data-color="#EF4444"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #84cc16"
+                data-color="#84CC16"
+              ></div>
+              <div
+                class="color-option"
+                style="background-color: #7c3aed"
+                data-color="#7C3AED"
+              ></div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              id="cancel-category-btn"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-button hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap !rounded-button"
+            >
+              İptal
+            </button>
+            <button
+              type="submit"
+              id="save-category-btn"
+              class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90 whitespace-nowrap !rounded-button"
+            >
+              Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="delete-confirm-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+    >
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden"
+      >
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-xl font-semibold">Görevi Sil</h2>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-700 dark:text-gray-300 mb-6">
+            Bu görevi silmek istediğinizden emin misiniz? Bu işlem geri
+            alınamaz.
+          </p>
+          <div class="flex justify-end gap-2">
+            <button
+              id="cancel-delete-btn"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-button hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap !rounded-button"
+            >
+              İptal
+            </button>
+            <button
+              id="confirm-delete-btn"
+              class="px-4 py-2 bg-red-500 text-white rounded-button hover:bg-red-600 whitespace-nowrap !rounded-button"
+            >
+              Sil
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Category Confirmation Modal -->
+    <div
+      id="delete-category-confirm-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-category-modal-title"
+    >
+      <div
+        class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md mx-4 overflow-hidden"
+      >
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-xl font-semibold">Kategoriyi Sil</h2>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-700 dark:text-gray-300 mb-6">
+            Bu kategoriyi silmek istediğinizden emin misiniz? Bu işlem ilgili
+            tüm görevleri de silecektir.
+          </p>
+          <div class="flex justify-end gap-2">
+            <button
+              id="cancel-category-delete-btn"
+              class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-button hover:bg-gray-50 dark:hover:bg-gray-700 whitespace-nowrap !rounded-button"
+            >
+              İptal
+            </button>
+            <button
+              id="confirm-category-delete-btn"
+              class="px-4 py-2 bg-red-500 text-white rounded-button hover:bg-red-600 whitespace-nowrap !rounded-button"
+            >
+              Sil
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      class="bg-yellow-50 dark:bg-gray-800 py-6 px-6 border-t border-gray-200 dark:border-gray-700"
+    >
+      <div
+        class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4"
+      >
+        <div class="text-center md:text-left">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            © 2025 TaskMony.
+            <a
+              href="https://github.com/developerharmony"
+              class="text-primary hover:text-primary dark:text-primary dark:hover:text-primary transition-colors"
+              >Harmony</a
+            >
+            tarafından geliştirilmiştir. Tüm hakları saklıdır.
+          </p>
+        </div>
+        <div class="flex gap-4">
+          <a
+            href="https://github.com/developerharmony"
+            class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors w-8 h-8 flex items-center justify-center"
+          >
+            <i class="ri-github-fill ri-lg"></i>
+          </a>
+          <a
+            href="#"
+            class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors w-8 h-8 flex items-center justify-center"
+          >
+            <i class="ri-twitter-x-fill ri-lg"></i>
+          </a>
+          <a
+            href="#"
+            class="text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors w-8 h-8 flex items-center justify-center"
+          >
+            <i class="ri-linkedin-fill ri-lg"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
